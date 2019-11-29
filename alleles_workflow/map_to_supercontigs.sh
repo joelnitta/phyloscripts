@@ -84,32 +84,26 @@ echo "Identifying variants"
 samtools index $supercontig.marked.bam
 #samtools mpileup -B -f $supercontig $supercontig.marked.bam -v -u > $supercontig.vcf
 
-gatk \
+gatk HaplotypeCaller \
 -R $supercontig \
--T HaplotypeCaller \
 -I $supercontig.marked.bam \
--o $supercontig.vcf
+-O $supercontig.vcf
 
-
-
-time gatk \
--T SelectVariants \
+time gatk SelectVariants \
 -R $supercontig \
 -V $supercontig.vcf \
--selectType SNP \
--o $supercontig.snps.vcf
-
+-select-type SNP \
+-O $supercontig.snps.vcf
 
 ######STEP FOUR: Output new supercontig FASTA with ambiguity codes
 
 echo "Generating IUPAC FASTA file"
 
-gatk \
--T FastaAlternateReferenceMaker \
+gatk FastaAlternateReferenceMaker \
 -R $supercontig \
--o $supercontig.iupac \
+-O $supercontig.iupac \
 -V $supercontig.snps.vcf \
--IUPAC $supercontig
+--use-iupac-sample $supercontig
 
 cd ..
 cp -r $prefix /home/mjohnson/Projects/artocarpus/alleles_paper/iupac_sequences/$prefix
