@@ -101,7 +101,7 @@ echo "Generating IUPAC FASTA file"
 
 gatk FastaAlternateReferenceMaker \
 -R $supercontig \
--O $supercontig.iupac \
+-O $supercontig.iupac.fasta \
 -V $supercontig.snps.vcf \
 --use-iupac-sample $supercontig
 
