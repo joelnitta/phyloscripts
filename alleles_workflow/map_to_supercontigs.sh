@@ -5,9 +5,8 @@
 
 #The script should be run on a FASTA file containing all the supercontigs of interest.
 
-
 if [[ $# -eq 0 ]] ; then
-    echo 'usage: hybpiper_ambiguity.sh supercontig.fasta readfile1.fq readfile2.fq'
+    echo 'usage: map_to_supercontigs.sh prefix readfile1.fq readfile2.fq'
     exit 1
 fi
 
@@ -16,9 +15,6 @@ fi
 prefix=$1
 read1fq=$2
 read2fq=$3
-
-mkdir $prefix
-cd $prefix
 
 supercontig=$prefix.supercontigs.fasta
 
@@ -81,6 +77,3 @@ gatk FastaAlternateReferenceMaker \
 -O $supercontig.iupac.fasta \
 -V $supercontig.snps.vcf \
 --use-iupac-sample $supercontig
-
-cd ..
-cp -r $prefix /home/mjohnson/Projects/artocarpus/alleles_paper/iupac_sequences/$prefix
