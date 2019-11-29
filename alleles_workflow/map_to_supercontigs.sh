@@ -9,7 +9,7 @@
 #cd $TMPDIR #Projects/artocarpus/alleles_paper/iupac_sequences
 #prefix=$(tail -n $PBS_ARRAYID /home/mjohnson/Projects/artocarpus/alleles_paper/namelist_ajb.txt | head -1)
 
-# This workflow will take the supercontig output of HybPiper and return a supercontig that 
+# This workflow will take the supercontig output of HybPiper and return a supercontig that
 # contains heterozygous positions as ambiguity bases. Uses paired reads.
 
 #The script should be run on a FASTA file containing all the supercontigs of interest.
@@ -46,8 +46,8 @@ supercontig=$prefix.supercontigs.fasta
 
 #####STEP ZERO: Make Reference Databases
 
-java -jar $picardpath CreateSequenceDictionary \
-R=$supercontig 
+picard CreateSequenceDictionary \
+R=$supercontig
 bwa index $supercontig
 samtools faidx $supercontig
 
@@ -57,13 +57,13 @@ echo "Mapping Reads"
 
 bwa mem $supercontig $read1fq $read2fq | samtools view -bS - | samtools sort - -o $supercontig.sorted.bam
 
-java -jar $picardpath FastqToSam  \
+picard FastqToSam  \
 F1=$read1fq \
 F2=$read2fq \
 O=$supercontig.unmapped.bam \
 SM=$supercontig
 
-java -jar $picardpath MergeBamAlignment \
+picard MergeBamAlignment \
 ALIGNED=$supercontig.sorted.bam \
 UNMAPPED=$supercontig.unmapped.bam \
 O=$supercontig.merged.bam \
@@ -72,7 +72,7 @@ R=$supercontig
 #####STEP TWO: Mark duplicates
 
 echo "Marking Duplicates"
-java -jar $picardpath MarkDuplicates \
+picard MarkDuplicates \
 I=$supercontig.merged.bam \
 O=$supercontig.marked.bam \
 M=$supercontig.metrics.txt
@@ -84,7 +84,7 @@ echo "Identifying variants"
 samtools index $supercontig.marked.bam
 #samtools mpileup -B -f $supercontig $supercontig.marked.bam -v -u > $supercontig.vcf
 
-java -jar $gatkpath \
+gatk \
 -R $supercontig \
 -T HaplotypeCaller \
 -I $supercontig.marked.bam \
@@ -92,19 +92,19 @@ java -jar $gatkpath \
 
 
 
-time java -jar $gatkpath \
+time gatk \
 -T SelectVariants \
 -R $supercontig \
 -V $supercontig.vcf \
 -selectType SNP \
--o $supercontig.snps.vcf 
+-o $supercontig.snps.vcf
 
 
 ######STEP FOUR: Output new supercontig FASTA with ambiguity codes
 
 echo "Generating IUPAC FASTA file"
 
-java -jar $gatkpath \
+gatk \
 -T FastaAlternateReferenceMaker \
 -R $supercontig \
 -o $supercontig.iupac \
@@ -113,9 +113,3 @@ java -jar $gatkpath \
 
 cd ..
 cp -r $prefix /home/mjohnson/Projects/artocarpus/alleles_paper/iupac_sequences/$prefix
-
-
-
-
-
-
