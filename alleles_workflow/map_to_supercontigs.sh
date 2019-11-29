@@ -1,14 +1,5 @@
 #!/bin/bash
 
-#PBS -q default
-#PBS -j oe
-#PBS -o ambiguity.out
-#PBS -l nodes=1:ppn=1
-#PBS -t 1-24
-
-#cd $TMPDIR #Projects/artocarpus/alleles_paper/iupac_sequences
-#prefix=$(tail -n $PBS_ARRAYID /home/mjohnson/Projects/artocarpus/alleles_paper/namelist_ajb.txt | head -1)
-
 # This workflow will take the supercontig output of HybPiper and return a supercontig that
 # contains heterozygous positions as ambiguity bases. Uses paired reads.
 
@@ -20,11 +11,6 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
-#########CHANGE THESE PATHS AS NEEDED###########
-
-gatkpath=/opt/Software/GenomeAnalysisTK.jar
-picardpath=/opt/Software/picard/build/libs/picard.jar
-
 #############COMMAND LINE ARGUMENTS############
 
 prefix=$1
@@ -34,15 +20,7 @@ read2fq=$3
 mkdir $prefix
 cd $prefix
 
-#while read i
-#do
-#cat ~/Projects/artocarpus/alleles_paper/hybpiper/$prefix/$i/$prefix/sequences/intron/"$i"_supercontig.fasta
-#done < ~/Projects/artocarpus/alleles_paper/newtargets_genelist.txt >> $prefix.supercontigs.fasta
-
 supercontig=$prefix.supercontigs.fasta
-
-#read1fq=~/Projects/artocarpus/alleles_paper/reads/"$prefix".R1.paired.fastq
-#read2fq=~/Projects/artocarpus/alleles_paper/reads/"$prefix".R2.paired.fastq
 
 #####STEP ZERO: Make Reference Databases
 
@@ -82,7 +60,6 @@ M=$supercontig.metrics.txt
 echo "Identifying variants"
 
 samtools index $supercontig.marked.bam
-#samtools mpileup -B -f $supercontig $supercontig.marked.bam -v -u > $supercontig.vcf
 
 gatk HaplotypeCaller \
 -R $supercontig \
